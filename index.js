@@ -103,6 +103,12 @@ class ChromeCacheFile {
   get url() { return this._.parsed.url }
   get content() { return this._.parsed.content }
   get headers() { return this._.parsed.headers }
+  get contentType() {
+    const headers = this._.parsed.headers
+    if (headers && this._.parsed.url.includes("nodejs")) {
+      return headers['Content-Type'] || headers['content-type']
+    }
+  }
 }
 
 class ChromeCacheReader {
@@ -111,11 +117,11 @@ class ChromeCacheReader {
     this.knownFilenames = {}
     this.updating = false
     this.queueUpdate = false
-    this.db = new Level(this.options.databasePath)
+    this.db = new Level(this.options.databasePath, { valueEncoding: 'json' })
   }
   get(url) {
     return new Promise((ok, no) => {
-      this.db.get(url, (error, filename) => {
+      this.db.get(url, (error, val) => {
         if (error) {
           if (error.notFound) {
             ok(null)
@@ -123,8 +129,8 @@ class ChromeCacheReader {
             no(error)
           }
         } else {
-          readFile(`${ this.options.cachePath }/${ filename }`)
-          .then((fileBuf) => ok(new ChromeCacheFile(filename, fileBuf)))
+          readFile(`${ this.options.cachePath }/${ val.filename }`)
+          .then((fileBuf) => ok(new ChromeCacheFile(val.filename, fileBuf)))
           .catch(no)
         }
       })
@@ -151,7 +157,15 @@ class ChromeCacheReader {
                     that.db.batch(
                       [
                         // { type: 'put', key: filename, value: chromeCacheFile.url },
-                        { type: 'put', key: chromeCacheFile.url, value: filename },
+                        {
+                          type: 'put',
+                          key: chromeCacheFile.url,
+                          value: {
+                            filename: filename,
+                            contentType: chromeCacheFile.contentType,
+                            bytes: fileBuf.length
+                          }
+                        },
                       ],
                       error => {
                         if (error) return no(error)
