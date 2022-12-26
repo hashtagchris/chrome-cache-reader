@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
-const level = require('level')
+const { Level } = require('level')
 
 // Default Options
 const DEFAULT_OPTIONS = {
@@ -111,7 +111,7 @@ class ChromeCacheReader {
     this.knownFilenames = {}
     this.updating = false
     this.queueUpdate = false
-    this.db = level(this.options.databasePath)
+    this.db = new Level(this.options.databasePath)
   }
   get(url) {
     return new Promise((ok, no) => {

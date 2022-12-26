@@ -6,7 +6,7 @@ const options = {
   cachePath: `${ os.homedir() }/.cache/chromium/Default/Cache`,
 }
 
-const reader = new ChromeCacheReader()
+const reader = new ChromeCacheReader(options)
 
 reader.update(options)
 .then(() => {
