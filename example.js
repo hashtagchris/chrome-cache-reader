@@ -1,5 +1,5 @@
 const os = require('os')
-const ChromeCacheReader = require('./index')
+const { ChromeCacheReader } = require('./index')
 
 const options = {
   databasePath: './database',

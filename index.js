@@ -36,7 +36,7 @@ const listCacheFilenames = (fullpath, blacklist={}) => {
     .map(dirent => `${ fullpath }/${ dirent.name }`)
 
   filepaths.pop() // Remove index file (always last)
-  
+
   return filepaths
 }
 
@@ -178,4 +178,5 @@ class ChromeCacheReader {
   }
 }
 
-module.exports = ChromeCacheReader
+module.exports.ChromeCacheFile = ChromeCacheFile
+module.exports.ChromeCacheReader = ChromeCacheReader
