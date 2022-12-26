@@ -72,8 +72,10 @@ const parseCachedFile = (buf) => {
   const cachedFilenameBuf = Buffer.alloc(cachedFilenameSize)
   buf.copy(cachedFilenameBuf, 0, cachedFileHeadingSize, cachedFileHeadingSize + cachedFilenameSize)
   const cachedFilename = cachedFilenameBuf.toString()
+  const filenameSegments = cachedFilename.split(" ")
+  const url = filenameSegments[filenameSegments.length - 1]
   if (buf.indexOf(Buffer.from('HTTP/1.1')) == -1) {
-    return { url: cachedFilename }
+    return { url: url }
   }
   const rawHttpReqHeaders = extractRawHttpHeaders(buf).toString()
   const headers = parseHttpReqHeaders(rawHttpReqHeaders)
@@ -81,7 +83,7 @@ const parseCachedFile = (buf) => {
   const contentOffset = cachedFileHeadingSize + cachedFilename.length
   const contentBuf = Buffer.alloc(contentLength)
   buf.copy(contentBuf, 0, contentOffset, contentOffset + contentLength)
-  return { url: cachedFilename, headers, content: contentBuf }
+  return { url: url, headers, content: contentBuf }
 }
 
 
